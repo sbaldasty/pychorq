@@ -1,3 +1,3 @@
-__all__ = ["get_message"]
+__all__ = ["LocalQuantumBackend"]
 
-from .core import get_message
+from .core import LocalQuantumBackend

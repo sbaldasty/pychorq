@@ -1,8 +1,5 @@
-from .core import get_message
-
-
 def main() -> None:
-    print(get_message())
+    print("Hello, world from pychorq!")
 
 
 if __name__ == "__main__":
