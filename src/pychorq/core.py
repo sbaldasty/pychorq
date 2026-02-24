@@ -1,28 +1,19 @@
 from collections import defaultdict
-from pychor import ChoreographyBackend
+from pychor import LocalBackend
 from pychor import LocatedVal
 from pychor import Party
-from qiskit.circuit import Qubit
+from qiskit.circuit import QuantumRegister
 
 
-class LocalQuantumBackend(ChoreographyBackend):
-    """Backend for simulating qubit-only choreography values.
-
-    - Every LocatedVal must have exactly one location.
-    - Every LocatedVal.val must be a Qiskit qubit object.
-    """
+class LocalQuantumBackend(LocalBackend):
 
     def __init__(self):
         self.views = defaultdict(list)
 
-    @staticmethod
-    def is_qiskit_qubit(val):
-        return isinstance(val, Qubit)
-
     def _validate_qubit_located_value(self, lv):
         assert isinstance(lv, LocatedVal), f'Expected LocatedVal, got {type(lv)}'
-        assert len(lv.parties) == 1, f'Qubit values must have exactly one owner: {lv}'
-        assert self.is_qiskit_qubit(lv.val), f'Qubit backend only supports Qiskit qubits: {type(lv.val)}'
+        assert len(lv.parties) == 1, f'Quantum values must have exactly one owner: {lv}'
+        assert isinstance(lv.val, QuantumRegister), f'Backend only supports quantum registers: {type(lv.val)}'
 
     def send(self, party_from, party_to, lv, note=None):
         assert isinstance(party_from, Party)
