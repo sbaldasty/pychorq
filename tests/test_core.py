@@ -1,5 +1,4 @@
 from pychor import Party
-from pychor import locally
 from pychorq.core import LocalQuantumBackend
 from pytest import raises
 from qiskit.circuit import QuantumRegister
@@ -44,3 +43,7 @@ def test_classical_ownership():
         # Charlie does not own the value and should not be able to send it
         with raises(expected_exception=AssertionError):
             loc_val.send(src=charlie, dest=bob)
+        loc_val.send(src=alice, dest=charlie)
+        # Alice can still send the value to Charlie
+        assert loc_val.parties == {alice, bob, charlie}
+    

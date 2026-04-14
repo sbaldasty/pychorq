@@ -11,6 +11,8 @@ requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dependencies = [
   "pychor",
+  "qiskit",
+  "qiskit-aer>=0.17.2",
 ]
 
 [project.optional-dependencies]

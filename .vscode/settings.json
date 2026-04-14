@@ -1,0 +1,11 @@
+{
+    "python-envs.pythonProjects": [],
+    "cSpell.enabledFileTypes": {
+        "python": false
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
