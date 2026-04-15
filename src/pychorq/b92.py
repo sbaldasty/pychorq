@@ -48,7 +48,7 @@ def measure_qubits(qr, bases):
 
 
 @local_function
-def infer_alice_bits(bases, bits):
+def infer_bits(bases, bits):
     return [int(bit == 1 and basis == 'Z')
         for basis, bit in zip(bases, bits)]
 
@@ -73,8 +73,8 @@ def b92(alice, bob, n_bits):
         b_bases = choose_bases(n_bits@bob)
         conclusives = measure_qubits(qubits, b_bases)
 
-        # Bob infers the correct bit for each conclusively measurement
-        b_bits = infer_alice_bits(b_bases, conclusives)
+        # Bob infers the correct bit for each conclusive measurement
+        b_bits = infer_bits(b_bases, conclusives)
 
         # Bob shares which bits were conclusive with Alice
         conclusives.send(src=bob, dest=alice)
