@@ -37,9 +37,9 @@ def measure_qubits(qr, bases):
     cr = ClassicalRegister(n)
     circuit.add_register(cr)
 
-    for i, basis in enumerate(bases):
+    for qubit, basis in zip(qr, bases):
         if basis == 'X':
-            circuit.h(qr[i])
+            circuit.h(qubit)
 
     circuit.measure(range(n), range(n))
     backend = AerSimulator()

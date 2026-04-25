@@ -17,9 +17,9 @@ def encode_bits(bits):
     qr = QuantumRegister(len(bits), 'q')
     circuit.add_register(qr)
 
-    for i, bit in enumerate(bits):
+    for qubit, bit in zip(qr, bits):
         if bit == 1:
-            circuit.h(qr[i])
+            circuit.h(qubit)
 
     return qr
 
@@ -35,9 +35,9 @@ def measure_qubits(qr, bases):
     cr = ClassicalRegister(n)
     circuit.add_register(cr)
 
-    for i, basis in enumerate(bases):
+    for qubit, basis in zip(qr, bases):
         if basis == 'X':
-            circuit.h(qr[i])
+            circuit.h(qubit)
 
     circuit.measure(qr, cr)
     backend = AerSimulator()
