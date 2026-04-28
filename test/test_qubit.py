@@ -23,3 +23,17 @@ def test_multi_unitary():
     Qubit.unitary(cnot(), qubits=[q1, q2])
     # Qubits share the same state now
     assert q1.system == q2.system
+
+
+def test_identity_measurement():
+    '''
+    Measuring a collapsed qubit returns the same value always.
+    '''
+    # Qubit already in the computational basis
+    q = Qubit(ket("1"))
+    assert Qubit.measure([q]) == [1]
+    # Random qubit measured twice
+    q = Qubit(ket("0") + ket("1"))
+    b1 = Qubit.measure([q])
+    b2 = Qubit.measure([q])
+    assert b1 == b2

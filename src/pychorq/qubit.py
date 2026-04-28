@@ -69,14 +69,12 @@ class Qubit:
             m0 = lifted(P0)
             m1 = lifted(P1)
             state = qubit.system.state
-            prob_0 = (state.dag() * m0 * state)[0, 0].real
+            prob_0 = (state.dag() * m0 * state).real
             bit = 0 if random() < prob_0 else 1
             m = m0 if bit == 0 else m1
 
             qubit.system.state = (m * state).unit()
             result.append(bit)
-
-            # TODO Factor the states
 
         return result
 
