@@ -1,5 +1,4 @@
 from qutip import Qobj
-from qutip import basis
 from qutip import ket
 from qutip import qeye
 from qutip import tensor
@@ -21,8 +20,16 @@ class QuantumSystem:
 
 
 class Qubit:
-
+    '''
+    Object representing a single qubit. The state of the qubit is stored in a
+    QuantumSystem object, which may be shared with other qubits if they are
+    entangled.
+    '''
     def __init__(self, state):
+        '''
+        Create a new qubit with its own quantum system in the given state. The
+        state should be a normalized ket of length two.
+        '''
         assert isinstance(state, Qobj)
         assert state.dims == [[2], [1]]
         self.system = QuantumSystem(state.unit(), [self])

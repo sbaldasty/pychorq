@@ -46,4 +46,19 @@ def test_classical_ownership():
         loc_val.send(src=alice, dest=charlie)
         # Alice can still send the value to Charlie
         assert loc_val.parties == {alice, bob, charlie}
-    
+
+
+def test_qubit_list_ownership():
+    '''
+    Lists of qubits are treated as single values for ownership purposes.
+    '''
+    alice = Party('Alice')
+    bob = Party('Bob')
+    qubits = [Qubit(ket("0")), Qubit(ket("1"))]@alice
+    with LocalQuantumBackend():
+        qubits.send(src=alice, dest=bob)
+        # Owner should be exlusively Bob
+        assert qubits.parties == {bob}
+        # Alice should not be able to send the qubits anymore
+        with raises(expected_exception=AssertionError):
+            qubits.send(src=alice, dest=bob)

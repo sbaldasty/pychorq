@@ -14,7 +14,10 @@ class LocalQuantumBackend(LocalBackend):
         assert isinstance(party_to, Party)
         assert party_from in lv.parties
 
-        if not isinstance(lv.val, Qubit):
+        single_owner = isinstance(lv.val, Qubit)
+        single_owner |= isinstance(lv.val, list) and all(isinstance(q, Qubit) for q in lv.val)
+
+        if not single_owner:
             return super().send(party_from, party_to, lv, note)
 
         qr = self.unwrap(lv, {party_from})
