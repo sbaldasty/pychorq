@@ -6,13 +6,6 @@ from qutip import tensor
 from qutip import expand_operator
 from random import random
 
-# Useful for creating common qubits
-KET_ZERO = ket("0")
-KET_ONE = ket("1")
-
-P0 = KET_ZERO * KET_ZERO.dag()
-P1 = KET_ONE * KET_ONE.dag()
-
 
 class QuantumSystem:
     '''
@@ -66,8 +59,8 @@ class Qubit:
                 ops[i] = P
                 return tensor(*ops)
 
-            m0 = lifted(P0)
-            m1 = lifted(P1)
+            m0 = lifted(ket("0") * ket("0").dag())
+            m1 = lifted(ket("1") * ket("1").dag())
             state = qubit.system.state
             prob_0 = (state.dag() * m0 * state).real
             bit = 0 if random() < prob_0 else 1
