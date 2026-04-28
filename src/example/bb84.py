@@ -1,5 +1,6 @@
 from pychor import Party, local_function
-from pychorq.core import LocalQuantumBackend
+from pychorq.qubit import KET_ONE, KET_ZERO, LocalQuantumBackend
+from pychorq.qubit import Qubit
 from qiskit.circuit import ClassicalRegister
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit import QuantumRegister
@@ -19,6 +20,7 @@ def choose_bases(n):
 
 @local_function
 def set_qubits(bits, bases):
+    qubits = [Qubit(KET_ZERO if bit == 0 else KET_ONE) for bit in bits]
     qr = QuantumRegister(len(bits), 'q')
     circuit.add_register(qr)
 

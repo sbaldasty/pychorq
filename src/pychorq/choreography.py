@@ -1,23 +1,20 @@
-from collections import defaultdict
 from pychor import LocalBackend
 from pychor import LocatedVal
 from pychor import Party
-from qiskit.circuit import QuantumRegister
+from pychorq.qubit import Qubit
 
 
 class LocalQuantumBackend(LocalBackend):
-
     def __init__(self):
         super().__init__()
-        self.views = defaultdict(list)
 
     def send(self, party_from, party_to, lv, note=None):
-        assert isinstance(lv, LocatedVal), f'Expected LocatedVal, got {type(lv)}'
+        assert isinstance(lv, LocatedVal)
         assert isinstance(party_from, Party)
         assert isinstance(party_to, Party)
         assert party_from in lv.parties
 
-        if not isinstance(lv.val, QuantumRegister):
+        if not isinstance(lv.val, Qubit):
             return super().send(party_from, party_to, lv, note)
 
         qr = self.unwrap(lv, {party_from})

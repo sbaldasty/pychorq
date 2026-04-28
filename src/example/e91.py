@@ -1,6 +1,6 @@
 from numpy import pi
 from pychor import Party, local_function
-from pychorq.core import LocalQuantumBackend
+from pychorq.qubit import LocalQuantumBackend
 from qiskit.circuit import ClassicalRegister
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit import QuantumRegister

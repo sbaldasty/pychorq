@@ -1,7 +1,8 @@
 from pychor import Party
-from pychorq.core import LocalQuantumBackend
+from pychorq.choreography import LocalQuantumBackend
+from pychorq.qubit import KET_ZERO
+from pychorq.qubit import Qubit
 from pytest import raises
-from qiskit.circuit import QuantumRegister
 
 
 def test_qubit_ownership():
@@ -11,7 +12,7 @@ def test_qubit_ownership():
     '''
     alice = Party('Alice')
     bob = Party('Bob')
-    qubit = QuantumRegister(1, "q")
+    qubit = Qubit(KET_ZERO)
     with LocalQuantumBackend():
         loc_q = qubit@alice
         # Owner should be exlusively Alice
