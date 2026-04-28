@@ -13,6 +13,7 @@ dependencies = [
   "pychor",
   "qiskit-aer>=0.17.2",
   "qutip>=5.2.3",
+  "qutip-qip>=0.4.1",
 ]
 
 [project.optional-dependencies]

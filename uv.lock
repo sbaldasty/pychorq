@@ -773,6 +773,7 @@ dependencies = [
     { name = "pychor" },
     { name = "qiskit-aer" },
     { name = "qutip" },
+    { name = "qutip-qip" },
 ]
 
 [package.optional-dependencies]
@@ -788,6 +789,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "qiskit-aer", specifier = ">=0.17.2" },
     { name = "qutip", specifier = ">=5.2.3" },
+    { name = "qutip-qip", specifier = ">=0.4.1" },
 ]
 provides-extras = ["dev"]
 
@@ -949,6 +951,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/37/9d602a6f005100f31ef20b2c391e02de445e7cafff3e38d2cc69d6486727/qutip-5.2.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:0cba2254afa1b2196cf2a062d3a8c3023c4e78ce49b9229e955689a6b6dc868f", size = 11234832, upload-time = "2026-01-26T17:30:46.327Z" },
     { url = "https://files.pythonhosted.org/packages/77/c2/5777b2cdb46acfae7558d69921d23e654054f17ff83e1ff23b38618c5862/qutip-5.2.3-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b4dc81468d163d9fc698dc00b1b183cf908f59b5d160daecc90c680dd6714940", size = 32839604, upload-time = "2026-01-26T17:30:48.434Z" },
     { url = "https://files.pythonhosted.org/packages/c0/26/303cd6f43344d5a69bc064d984b8c44563f195ab03ddd7d46dff89b2217b/qutip-5.2.3-cp314-cp314-win_amd64.whl", hash = "sha256:324218baa374a82f32d2c23871835019880d4eb9313bda2caf082adec8e3be6e", size = 10843778, upload-time = "2026-01-26T17:30:51.274Z" },
+]
+
+[[package]]
+name = "qutip-qip"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "packaging" },
+    { name = "qutip" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b3/74/19bb890570b0ad854f099858f5e5a64cc2268c3ea14ccd52309d10508925/qutip_qip-0.4.1.tar.gz", hash = "sha256:110f15602086f22f90767b5dd22de566f5429b037865409df09c61ac1f664191", size = 161744, upload-time = "2025-04-07T17:26:02.555Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/85/50622645103786162a196e054f7875ce55f6ec3336797123286abc7eb472/qutip_qip-0.4.1-py3-none-any.whl", hash = "sha256:562050f96c445d6862d83d56f5dc3064662ddaf1889825fc9e9ed8fb8d868ece", size = 140822, upload-time = "2025-04-07T17:26:01.159Z" },
 ]
 
 [[package]]

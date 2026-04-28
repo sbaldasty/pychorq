@@ -1,10 +1,6 @@
 from pychor import Party, local_function
 from pychorq.qubit import KET_ONE, KET_ZERO, LocalQuantumBackend
 from pychorq.qubit import Qubit
-from qiskit.circuit import ClassicalRegister
-from qiskit.circuit import QuantumCircuit
-from qiskit.circuit import QuantumRegister
-from qiskit_aer import AerSimulator
 from random import choices
 
 

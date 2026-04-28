@@ -1,10 +1,6 @@
 from numpy import pi
 from pychor import Party, local_function
 from pychorq.qubit import LocalQuantumBackend
-from qiskit.circuit import ClassicalRegister
-from qiskit.circuit import QuantumCircuit
-from qiskit.circuit import QuantumRegister
-from qiskit_aer import AerSimulator
 from random import choices
 
 
