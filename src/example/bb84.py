@@ -1,19 +1,15 @@
-from pychor import Party, local_function
+from example.common import choose_bits
+from example.common import choose_indexes
+from example.common import eve_detected
+from example.common import split_bits
+from pychor import Party
+from pychor import local_function
 from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
 from qutip import ket
 from qutip import sigmax
 from qutip import sigmaz
 from random import choices
-from random import sample
-
-
-@local_function
-def choose_bits(n):
-    '''
-    Choose n random bits.
-    '''
-    return choices([0, 1], k=n)
 
 
 @local_function
@@ -57,34 +53,6 @@ def sift_bits(bits, bases1, bases2):
     '''
     tbl = zip(bits, bases1, bases2)
     return [bit for bit, b1, b2 in tbl if b1 == b2]
-
-
-@local_function
-def choose_indexes(bits, k):
-    '''
-    Choose k random indexes from the bits, without replacement.
-    '''
-    return sample(range(len(bits)), k=k)
-
-
-@local_function
-def split_bits(bits, idxs):
-    '''
-    Split bits into two lists, one with the bits at the given indexes and one
-    with the remaining bits.
-    '''
-    all_idxs = range(len(bits))
-    key_bits = [bits[i] for i in all_idxs if i not in idxs]
-    chk_bits = [bits[i] for i in all_idxs if i in idxs]
-    return key_bits, chk_bits
-
-
-@local_function
-def eve_detected(bits1, bits2, threshold):
-    '''
-    Check if the number of differing bits exceeds the given threshold.
-    '''
-    return sum(bit1 != bit2 for bit1, bit2 in zip(bits1, bits2)) > threshold
 
 
 def bb84(alice, bob, n_bits, n_checks, threshold):
@@ -133,7 +101,7 @@ def bb84(alice, bob, n_bits, n_checks, threshold):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    a_key, b_key, a_eve_detected, b_eve_detected = bb84(alice, bob, 20, 3, 0)
+    a_key, b_key, a_eve_detected, b_eve_detected = bb84(alice, bob, 100, 10, 0)
     print('BB84')
     print(a_key, a_eve_detected)
     print(b_key, b_eve_detected)

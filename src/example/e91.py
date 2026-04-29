@@ -1,5 +1,6 @@
 from numpy import pi
-from pychor import Party, local_function
+from pychor import Party
+from pychor import local_function
 from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
 from pychorq.state import ket_plus
