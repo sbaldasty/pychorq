@@ -1,6 +1,14 @@
 from pychor import Party, local_function
-from pychorq.qubit import LocalQuantumBackend
+from pychorq.choreography import LocalQuantumBackend
+from pychorq.qubit import Qubit
+from qutip import ket
+from qutip.core.gates import hadamard_transform
+from qutip import sigmaz
 from random import choices
+
+
+def ket_plus():
+    return (ket("0") + ket("1")).unit()
 
 
 @local_function
@@ -10,14 +18,7 @@ def choose_bits(n):
 
 @local_function
 def encode_bits(bits):
-    qr = QuantumRegister(len(bits), 'q')
-    circuit.add_register(qr)
-
-    for qubit, bit in zip(qr, bits):
-        if bit == 1:
-            circuit.h(qubit)
-
-    return qr
+    return [Qubit(ket("0") if bit == 0 else ket_plus()) for bit in bits]
 
 
 @local_function
@@ -26,21 +27,12 @@ def choose_bases(n):
 
 
 @local_function
-def measure_qubits(qr, bases):
-    n = len(bases)
-    cr = ClassicalRegister(n)
-    circuit.add_register(cr)
+def measure_qubits(qubits, bases):
+    for qubit, basis in zip(qubits, bases):
+        op = hadamard_transform() if basis == 'X' else sigmaz()
+        Qubit.unitary(op, [qubit])
 
-    for qubit, basis in zip(qr, bases):
-        if basis == 'X':
-            circuit.h(qubit)
-
-    circuit.measure(qr, cr)
-    backend = AerSimulator()
-    result = backend.run(circuit).result()
-    counts = result.get_counts(circuit)
-    bits = list(counts.keys())[0]
-    return [int(bit) for bit in bits][::-1]
+    return Qubit.measure(qubits)
 
 
 @local_function
@@ -85,8 +77,7 @@ def b92(alice, bob, n_bits):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    circuit = QuantumCircuit()
-    a_key, b_key = b92(alice, bob, 20)
+    a_key, b_key = b92(alice, bob, 50)
     print('B92')
     print(a_key)
     print(b_key)
