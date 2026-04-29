@@ -5,6 +5,11 @@ from pychorq.qubit import Qubit
 
 
 class LocalQuantumBackend(LocalBackend):
+    '''
+    Local quantum backend for handling qubit operations. Delegates to the
+    pychor local backend except for qubits and lists of qubits. Qubits and
+    lists of qubits must have exactly one owner at a time.
+    '''
     def __init__(self):
         super().__init__()
 
