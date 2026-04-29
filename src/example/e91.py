@@ -1,20 +1,21 @@
 from numpy import pi
 from pychor import Party, local_function
-from pychorq.qubit import LocalQuantumBackend
+from pychorq.choreography import LocalQuantumBackend
+from pychorq.qubit import Qubit
+from pychorq.state import ket_plus
+from pychorq.state import ket_zero
+from qutip.core.gates import cnot
 from random import choices
 
 
 @local_function
 def entangle_qubits(n):
-    alice_qr = QuantumRegister(n, 'alice')
-    bob_qr = QuantumRegister(n, 'bob')
-    circuit.add_register(alice_qr)
-    circuit.add_register(bob_qr)
-    for qa, qb in zip(alice_qr, bob_qr):
-        circuit.h(qa)
-        circuit.cx(qa, qb)
+    bank_1 = [Qubit(ket_zero()) for _ in range(n)]
+    bank_2 = [Qubit(ket_plus()) for _ in range(n)]
+    for q1, q2 in zip(bank_1, bank_2):
+        Qubit.unitary(cnot(), [q1, q2])
 
-    return alice_qr, bob_qr
+    return bank_1, bank_2
 
 
 @local_function
@@ -30,11 +31,9 @@ def choose_angles_set_2(n):
 
 
 @local_function
-def measure_qubits(qr, angles):
+def measure_qubits(qubits, angles):
     # TODO Is this right?
     n = len(angles)
-    cr = ClassicalRegister(n)
-    circuit.add_register(cr)
 
     for qubit, angle in zip(qr, angles):
         if angle == pi / 8.0:
@@ -43,14 +42,7 @@ def measure_qubits(qr, angles):
             circuit.sdg(qubit)
             circuit.h(qubit)
 
-    circuit.measure(qr, cr)
-    backend = AerSimulator()
-    result = backend.run(circuit).result()
-    counts = result.get_counts(circuit)
-    bits = list(counts.keys())[0]
-    bits = bits.split(' ')[-1]
-    print(f'bits: {bits}')
-    return [int(bit) for bit in bits][::-1]
+    return Qubit.measure(qubits)
 
 
 @local_function
@@ -89,7 +81,6 @@ if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
     source = Party('source')
-    circuit = QuantumCircuit()
     a_key, b_key = e91(alice, bob, 50, source)
     print('E91')
     print(a_key)

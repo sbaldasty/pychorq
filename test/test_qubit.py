@@ -1,7 +1,7 @@
 from pychorq.qubit import Qubit
 from qutip import ket
 from qutip import sigmax
-from qutip.qip.operations import cnot
+from qutip.core.gates import cnot
 
 
 def test_single_unitary():

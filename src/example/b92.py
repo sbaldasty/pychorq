@@ -1,14 +1,11 @@
 from pychor import Party, local_function
 from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
-from qutip import ket
+from pychorq.state import ket_plus
+from pychorq.state import ket_zero
 from qutip.core.gates import hadamard_transform
 from qutip import sigmaz
 from random import choices
-
-
-def ket_plus():
-    return (ket("0") + ket("1")).unit()
 
 
 @local_function
@@ -18,7 +15,7 @@ def choose_bits(n):
 
 @local_function
 def encode_bits(bits):
-    return [Qubit(ket("0") if bit == 0 else ket_plus()) for bit in bits]
+    return [Qubit(ket_zero() if bit == 0 else ket_plus()) for bit in bits]
 
 
 @local_function
