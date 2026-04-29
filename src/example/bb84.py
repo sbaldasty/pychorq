@@ -1,6 +1,9 @@
 from pychor import Party, local_function
-from pychorq.qubit import KET_ONE, KET_ZERO, LocalQuantumBackend
+from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
+from qutip import ket
+from qutip import sigmax
+from qutip import sigmaz
 from random import choices
 
 
@@ -16,35 +19,23 @@ def choose_bases(n):
 
 @local_function
 def set_qubits(bits, bases):
-    qubits = [Qubit(KET_ZERO if bit == 0 else KET_ONE) for bit in bits]
-    qr = QuantumRegister(len(bits), 'q')
-    circuit.add_register(qr)
+    # Initialize qubits from bits
+    qubits = [Qubit(ket(str(bit))) for bit in bits]
+    # Rotate bits according to bases
+    for q, b in zip(qubits, bases):
+        op = sigmax() if b == 'X' else sigmaz()
+        Qubit.unitary(op, [q])
 
-    for i, (bit, basis) in enumerate(zip(bits, bases)):
-        if bit == 1:
-            circuit.x(qr[i])
-        if basis == 'X':
-            circuit.h(qr[i])
-
-    return qr
+    return qubits
 
 
 @local_function
-def measure_qubits(qr, bases):
-    n = len(bases)
-    cr = ClassicalRegister(n)
-    circuit.add_register(cr)
+def measure_qubits(qubits, bases):
+    for qubit, basis in zip(qubits, bases):
+        op = sigmax() if basis == 'X' else sigmaz()
+        Qubit.unitary(op, [qubit])
 
-    for qubit, basis in zip(qr, bases):
-        if basis == 'X':
-            circuit.h(qubit)
-
-    circuit.measure(range(n), range(n))
-    backend = AerSimulator()
-    result = backend.run(circuit).result()
-    counts = result.get_counts(circuit)
-    bits = list(counts.keys())[0]
-    return [int(bit) for bit in bits][::-1]
+    return Qubit.measure(qubits)
 
 
 @local_function
@@ -83,7 +74,6 @@ def bb84(alice, bob, n_bits):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    circuit = QuantumCircuit()
     a_key, b_key = bb84(alice, bob, 20)
     print('BB84')
     print(a_key)
