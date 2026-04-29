@@ -2,8 +2,10 @@ from itertools import combinations
 from networkx import Graph
 from networkx import compose_all
 from networkx import connected_components
+from numpy.linalg import svd
+from pychorq.state import ket_one
+from pychorq.state import ket_zero
 from qutip import Qobj
-from qutip import ket
 from qutip import qeye
 from qutip import tensor
 from qutip import expand_operator
@@ -23,6 +25,45 @@ class QuantumSystem:
         self.state = state
         self.qubits = qubits
         self.entanglements = graph
+
+
+    def update_ownership(self):
+        '''
+        Update the qubits to point to this system as their owner.
+        '''
+        for q in self.qubits:
+            q.system = self
+
+
+    def extract_subsystems(self):
+        '''
+        Factor each connected component of the entanglement graph into a
+        separate quantum system, and update the qubits to point to their new
+        systems.
+        '''
+        for comp in connected_components(self.entanglements):
+            # Get the qubits in this subsystem in order
+            comp_qubits = [q for q in self.qubits if q in comp]
+
+            # Permute the state so the subsystem qubits are first
+            comp_idxs = [q.index for q in comp_qubits]
+            rest_idxs = [i for i in range(len(self.qubits)) if i not in comp_idxs]
+            perm_state = self.state.permute(comp_idxs + rest_idxs)
+
+            # Still trying to understand the linear algebra magic here :(
+            dA = 2 ** len(comp_idxs)
+            dB = 2 ** len(rest_idxs)
+            m = perm_state.full().reshape((dA, dB))
+            U, _, _ = svd(m, full_matrices=False)
+            ketA = U[:, 0].reshape((dA, 1))
+            dims = [[2] * len(comp_idxs), [1] * len(comp_idxs)]
+
+            subsystem = QuantumSystem(
+                state=Qobj(ketA, dims=dims).unit(),
+                qubits=comp_qubits,
+                graph=self.entanglements.subgraph(comp).copy())
+
+            subsystem.update_ownership()
 
 
 class Qubit:
@@ -58,7 +99,6 @@ class Qubit:
         Measure the given qubits in the computational basis, returning a list
         of bits.
         '''
-
         # Check qubits is a list of distinct Qubits
         assert isinstance(qubits, list)
         assert all(isinstance(q, Qubit) for q in qubits)
@@ -66,7 +106,8 @@ class Qubit:
 
         result = []
         for qubit in qubits:
-            n = len(qubit.system.qubits)
+            system = qubit.system
+            n = len(system.qubits)
             i = qubit.index
 
             def lifted(P):
@@ -74,11 +115,12 @@ class Qubit:
                 ops[i] = P
                 return tensor(*ops)
 
-            m0 = lifted(ket("0") * ket("0").dag())
-            m1 = lifted(ket("1") * ket("1").dag())
+            # Measurement operators ready to apply to the whole state
+            m0 = lifted(ket_zero() * ket_zero().dag())
+            m1 = lifted(ket_one() * ket_one().dag())
 
             # Perform the measurement probabilistically
-            state = qubit.system.state
+            state = system.state
             prob_0 = (state.dag() * m0 * state).real
             bit = 0 if random() < prob_0 else 1
 
@@ -87,11 +129,15 @@ class Qubit:
 
             # Part of the state collapses
             m = m0 if bit == 0 else m1
-            qubit.system.state = (m * state).unit()
+            state = (m * state).unit()
+            system.state = state
 
-            # Identify any groups of qubits now disentangled from the rest
-            subsystems = connected_components(qubit.system.entanglements)
-            # TODO Figure out how to split the state
+            # Qubit is now disentangled from the rest
+            graph = system.entanglements
+            graph.remove_edges_from(list(graph.edges(qubit)))
+
+            # Factor the system into separate subsystems
+            system.extract_subsystems()
 
         return result
 
@@ -119,8 +165,7 @@ class Qubit:
             qubits=[q for s in subsystems for q in s.qubits],
             graph=entanglements)
 
-        for q in system.qubits:
-            q.system = system
+        system.update_ownership()
 
         # Expand unitary to act on the combined system
         indexes = [system.qubits.index(q) for q in qubits]
