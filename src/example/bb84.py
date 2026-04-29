@@ -5,23 +5,31 @@ from qutip import ket
 from qutip import sigmax
 from qutip import sigmaz
 from random import choices
+from random import sample
 
 
 @local_function
 def choose_bits(n):
+    '''
+    Choose n random bits.
+    '''
     return choices([0, 1], k=n)
 
 
 @local_function
 def choose_bases(n):
+    '''
+    Choose n random bases, either 'X' or 'Z'.
+    '''
     return choices(['X', 'Z'], k=n)
 
 
 @local_function
 def set_qubits(bits, bases):
-    # Initialize qubits from bits
+    '''
+    Initialize qubits from bits and rotate them pairwise according to bases.
+    '''
     qubits = [Qubit(ket(str(bit))) for bit in bits]
-    # Rotate bits according to bases
     for q, b in zip(qubits, bases):
         op = sigmax() if b == 'X' else sigmaz()
         Qubit.unitary(op, [q])
@@ -31,6 +39,9 @@ def set_qubits(bits, bases):
 
 @local_function
 def measure_qubits(qubits, bases):
+    '''
+    Measure qubits in the given bases pairwise.
+    '''
     for qubit, basis in zip(qubits, bases):
         op = sigmax() if basis == 'X' else sigmaz()
         Qubit.unitary(op, [qubit])
@@ -40,11 +51,43 @@ def measure_qubits(qubits, bases):
 
 @local_function
 def sift_bits(bits, bases1, bases2):
+    '''
+    Keep only the bits where the bases match (all three lists must be the same
+    length).
+    '''
     tbl = zip(bits, bases1, bases2)
     return [bit for bit, b1, b2 in tbl if b1 == b2]
 
 
-def bb84(alice, bob, n_bits):
+@local_function
+def choose_indexes(bits, k):
+    '''
+    Choose k random indexes from the bits, without replacement.
+    '''
+    return sample(range(len(bits)), k=k)
+
+
+@local_function
+def split_bits(bits, idxs):
+    '''
+    Split bits into two lists, one with the bits at the given indexes and one
+    with the remaining bits.
+    '''
+    all_idxs = range(len(bits))
+    key_bits = [bits[i] for i in all_idxs if i not in idxs]
+    chk_bits = [bits[i] for i in all_idxs if i in idxs]
+    return key_bits, chk_bits
+
+
+@local_function
+def eve_detected(bits1, bits2, threshold):
+    '''
+    Check if the number of differing bits exceeds the given threshold.
+    '''
+    return sum(bit1 != bit2 for bit1, bit2 in zip(bits1, bits2)) > threshold
+
+
+def bb84(alice, bob, n_bits, n_checks, threshold):
     with LocalQuantumBackend():
         # Alice chooses random bits and a random basis for each bit
         a_bits = choose_bits(n_bits@alice)
@@ -65,16 +108,32 @@ def bb84(alice, bob, n_bits):
         b_bases.send(src=bob, dest=alice)
 
         # Alice and Bob keep only the bits where their bases matched
-        a_key = sift_bits(a_bits, a_bases, b_bases)
-        b_key = sift_bits(b_bits, a_bases, b_bases)
+        a_keep = sift_bits(a_bits, a_bases, b_bases)
+        b_keep = sift_bits(b_bits, a_bases, b_bases)
 
-        return a_key, b_key
+        # Alice chooses and shares indexes of bits to check for eavesdropping
+        a_idxs = choose_indexes(a_keep, n_checks@alice)
+        a_idxs.send(src=alice, dest=bob)
+
+        # Alice and Bob split their remaining bits into key bits and check bits
+        a_key, a_chk = split_bits(a_keep, a_idxs).untup(2)
+        b_key, b_chk = split_bits(b_keep, a_idxs).untup(2)
+
+        # Alice and Bob exchange their check bits
+        a_chk.send(src=alice, dest=bob)
+        b_chk.send(src=bob, dest=alice)
+
+        # Alice and Bob check for eavesdropping by comparing their check bits
+        a_eve_detected = eve_detected(a_chk, b_chk, threshold@alice)
+        b_eve_detected = eve_detected(a_chk, b_chk, threshold@bob)
+
+        return a_key, b_key, a_eve_detected, b_eve_detected
 
 
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    a_key, b_key = bb84(alice, bob, 20)
+    a_key, b_key, a_eve_detected, b_eve_detected = bb84(alice, bob, 20, 3, 0)
     print('BB84')
-    print(a_key)
-    print(b_key)
+    print(a_key, a_eve_detected)
+    print(b_key, b_eve_detected)
