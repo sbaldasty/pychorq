@@ -5,13 +5,15 @@ from pychorq.qubit import Qubit
 from pychorq.state import ket_plus
 from pychorq.state import ket_zero
 from qutip.core.gates import cnot
+from qutip.core.gates import rz
 from random import choices
 
+from qutip import sigmay
 
 @local_function
 def entangle_qubits(n):
-    bank_1 = [Qubit(ket_zero()) for _ in range(n)]
-    bank_2 = [Qubit(ket_plus()) for _ in range(n)]
+    bank_1 = [Qubit(ket_plus()) for _ in range(n)]
+    bank_2 = [Qubit(ket_zero()) for _ in range(n)]
     for q1, q2 in zip(bank_1, bank_2):
         Qubit.unitary(cnot(), [q1, q2])
 
@@ -32,15 +34,8 @@ def choose_angles_set_2(n):
 
 @local_function
 def measure_qubits(qubits, angles):
-    # TODO Is this right?
-    n = len(angles)
-
-    for qubit, angle in zip(qr, angles):
-        if angle == pi / 8.0:
-            circuit.h(qubit)
-        elif angle == -pi / 8.0:
-            circuit.sdg(qubit)
-            circuit.h(qubit)
+    for qubit, angle in zip(qubits, angles):
+        Qubit.unitary(rz(angle), [qubit])
 
     return Qubit.measure(qubits)
 
