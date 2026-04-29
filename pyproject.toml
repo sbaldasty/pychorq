@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dependencies = [
+  "networkx>=3.4.2",
   "pychor",
   "qiskit-aer>=0.17.2",
   "qutip>=5.2.3",

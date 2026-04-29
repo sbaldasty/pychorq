@@ -8,7 +8,6 @@ from qutip.core.gates import cnot
 from qutip.core.gates import rz
 from random import choices
 
-from qutip import sigmay
 
 @local_function
 def entangle_qubits(n):
