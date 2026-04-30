@@ -1,6 +1,7 @@
 from example.common import choose_bits
 from example.common import choose_indexes
 from example.common import eve_detected
+from example.common import eavesdrop
 from example.common import split_bits
 from pychor import Party
 from pychor import local_function
@@ -43,7 +44,7 @@ def sift_bits(bits, conclusives):
     return [bit for bit, conclusive in zip(bits, conclusives) if conclusive]
 
 
-def b92(alice, bob, n_bits, n_checks, threshold):
+def b92(alice, bob, eve, n_bits, n_checks, threshold=0, pct_eve=0.0):
     with LocalQuantumBackend():
         # Alice chooses random bits
         a_bits = choose_bits(n_bits@alice)
@@ -51,8 +52,10 @@ def b92(alice, bob, n_bits, n_checks, threshold):
         # Alice encodes the bits as non-orthogonal qubit states
         qubits = encode_bits(a_bits)
 
-        # Alice sends the non-orthogonal qubit states to Bob
-        qubits.send(src=alice, dest=bob)
+        # Alice sends the non-orthogonal qubit states to Bob through Eve
+        qubits.send(src=alice, dest=eve)
+        eavesdrop(qubits, pct_eve@eve)
+        qubits.send(src=eve, dest=bob)
 
         # Bob chooses random bases and measures the qubits in them
         b_bases = choose_bases(n_bits@bob)
@@ -90,7 +93,8 @@ def b92(alice, bob, n_bits, n_checks, threshold):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    a_key, b_key, a_eve_detected, b_eve_detected = b92(alice, bob, 100, 10, 2)
+    eve = Party('eve')
+    a_key, b_key, a_eve_detected, b_eve_detected = b92(alice, bob, eve, 100, 10)
     print('B92')
     print(a_key, a_eve_detected)
     print(b_key, b_eve_detected)

@@ -1,6 +1,7 @@
 from numpy import pi
 from pychor import Party
 from pychor import local_function
+from example.common import eavesdrop
 from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
 from pychorq.state import ket_plus
@@ -109,12 +110,16 @@ def eve_detected(bits1, bits2, angles1, angles2):
     return s < 2.0
 
 
-def e91(alice, bob, n_bits, source):
+def e91(alice, bob, eve, source, n_bits, pct_eve=0.0):
     with LocalQuantumBackend():
         # Source creates entangled qubits, and sends them to Alice and Bob
         a_qubits, b_qubits = entangle_qubits(n_bits@source).untup(2)
-        a_qubits.send(src=source, dest=alice)
-        b_qubits.send(src=source, dest=bob)
+        a_qubits.send(src=source, dest=eve)
+        eavesdrop(a_qubits, pct_eve@eve)
+        a_qubits.send(src=eve, dest=alice)
+        b_qubits.send(src=source, dest=eve)
+        eavesdrop(b_qubits, pct_eve@eve)
+        b_qubits.send(src=eve, dest=bob)
 
         # Alice and Bob choose from non-orthogonal measurement bases
         a_angles = choose_angles_set_1(n_bits@alice)
@@ -146,8 +151,9 @@ def e91(alice, bob, n_bits, source):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
+    eve = Party('eve')
     source = Party('source')
-    a_key, b_key, a_eve_detected, b_eve_detected = e91(alice, bob, 150, source)
+    a_key, b_key, a_eve_detected, b_eve_detected = e91(alice, bob, eve, source, 150)
     print('E91')
     print(a_key, a_eve_detected)
     print(b_key, b_eve_detected)

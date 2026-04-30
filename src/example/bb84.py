@@ -1,6 +1,7 @@
 from example.common import choose_bits
 from example.common import choose_indexes
 from example.common import eve_detected
+from example.common import eavesdrop
 from example.common import split_bits
 from pychor import Party
 from pychor import local_function
@@ -55,7 +56,13 @@ def sift_bits(bits, bases1, bases2):
     return [bit for bit, b1, b2 in tbl if b1 == b2]
 
 
-def bb84(alice, bob, n_bits, n_checks, threshold):
+def bb84(alice, bob, eve, n_bits, n_checks, threshold=0, pct_eve=0.0):
+    '''
+    Alice and Bob perform the BB84 quantum key distribution protocol, with Eve
+    able to intercept qubits on the quantum channel between them. They send
+    n_bits qubits, and then check n_checks of them for eavesdropping. They flag
+    if the number of mismatches exceeds the given threshold.
+    '''
     with LocalQuantumBackend():
         # Alice chooses random bits and a random basis for each bit
         a_bits = choose_bits(n_bits@alice)
@@ -64,8 +71,10 @@ def bb84(alice, bob, n_bits, n_checks, threshold):
         # Alice creates qubits according to her chosen bits and bases
         qubits = set_qubits(a_bits, a_bases)
 
-        # Alice sends the qubits to Bob
-        qubits.send(src=alice, dest=bob)
+        # Alice sends the qubits to Bob through Eve
+        qubits.send(src=alice, dest=eve)
+        eavesdrop(qubits, pct_eve@eve)
+        qubits.send(src=eve, dest=bob)
 
         # Bob chooses random bases and measures the received qubits in them
         b_bases = choose_bases(n_bits@bob)
@@ -101,7 +110,8 @@ def bb84(alice, bob, n_bits, n_checks, threshold):
 if __name__ == '__main__':
     alice = Party('alice')
     bob = Party('bob')
-    a_key, b_key, a_eve_detected, b_eve_detected = bb84(alice, bob, 100, 10, 0)
+    eve = Party('eve')
+    a_key, b_key, a_eve_detected, b_eve_detected = bb84(alice, bob, eve, 50, 10)
     print('BB84')
     print(a_key, a_eve_detected)
     print(b_key, b_eve_detected)

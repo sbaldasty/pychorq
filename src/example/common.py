@@ -1,4 +1,5 @@
 from pychor import local_function
+from pychorq.qubit import Qubit
 from random import choices
 from random import sample
 
@@ -18,6 +19,16 @@ def choose_indexes(bits, k):
     return sample(range(len(bits)), k=k)
 
 
+@local_function
+def eavesdrop(qubits, pct):
+    '''
+    Measure pct percent of the qubits.
+    '''
+    n_reads = int(len(qubits) * pct)
+    peek = sample(qubits, k=n_reads)
+    Qubit.measure(peek)
+
+    
 @local_function
 def split_bits(bits, idxs):
     '''
