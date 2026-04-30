@@ -8,8 +8,8 @@ from pychor import local_function
 from pychorq.choreography import LocalQuantumBackend
 from pychorq.qubit import Qubit
 from qutip import ket
-from qutip import sigmax
 from qutip import sigmaz
+from qutip.core.gates import hadamard_transform
 from random import choices
 
 
@@ -28,7 +28,7 @@ def set_qubits(bits, bases):
     '''
     qubits = [Qubit(ket(str(bit))) for bit in bits]
     for q, b in zip(qubits, bases):
-        op = sigmax() if b == 'X' else sigmaz()
+        op = hadamard_transform() if b == 'X' else sigmaz()
         Qubit.unitary(op, [q])
 
     return qubits
@@ -40,7 +40,7 @@ def measure_qubits(qubits, bases):
     Measure qubits in the given bases pairwise.
     '''
     for qubit, basis in zip(qubits, bases):
-        op = sigmax() if basis == 'X' else sigmaz()
+        op = hadamard_transform() if basis == 'X' else sigmaz()
         Qubit.unitary(op, [qubit])
 
     return Qubit.measure(qubits)
