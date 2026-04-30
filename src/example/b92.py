@@ -14,11 +14,6 @@ from random import choices
 
 
 @local_function
-def choose_bits(n):
-    return choices([0, 1], k=n)
-
-
-@local_function
 def encode_bits(bits):
     return [Qubit(ket_zero() if bit == 0 else ket_plus()) for bit in bits]
 
