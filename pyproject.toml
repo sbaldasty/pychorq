@@ -21,6 +21,8 @@ dependencies = [
 dev = [
   "matplotlib",
   "pytest>=8.0",
+  "ipykernel",
+  "pip",
 ]
 
 [tool.pytest.ini_options]
