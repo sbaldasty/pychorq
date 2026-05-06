@@ -9,13 +9,30 @@ description = "Simulated quantum backend for uvm-plaid/pychor"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
+authors = [
+  { name = "Steven Baldasty" },
+]
 dependencies = [
   "networkx>=3.4.2",
-  "pychor",
+  "pychor>=0.2.2",
   "qiskit-aer>=0.17.2",
   "qutip>=5.2.3",
   "qutip-qip>=0.4.1",
 ]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+Repository = "https://github.com/sbaldasty/pychorq"
+Issues = "https://github.com/sbaldasty/pychorq/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -29,3 +46,6 @@ dev = [
 testpaths = ["test"]
 pythonpath = ["src"]
 addopts = "-q"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pychorq"]

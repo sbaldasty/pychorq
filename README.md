@@ -4,7 +4,17 @@ This package provides a tool for modeling quantum key distribution protocols, an
 
 ## Installation
 
-Manually download for now. The dependencies are listed in `pyproject.toml`. Hopefully this project will be coming soon to `pip`...
+Install from PyPI:
+
+```bash
+pip install pychorq
+```
+
+For local development:
+
+```bash
+pip install -e .[dev]
+```
 
 ## Core architecture
 
